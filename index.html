@@ -99,24 +99,24 @@
 
         /* --- GAMBLING ANIMATIONS --- */
         
-        /* Game Overlay */
+        /* Game Overlay - Now Fixed to cover everything */
         #game-overlay {
-            transition: opacity 0.5s ease;
+            transition: opacity 0.3s ease;
         }
 
         /* Card Flip Animation */
         .playing-card {
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             color: black;
-            box-shadow: 0 0 15px rgba(255,255,255,0.2);
-            animation: dealCard 0.5s ease-out forwards;
+            box-shadow: 0 0 10px rgba(255,255,255,0.2);
+            animation: dealCard 0.4s ease-out forwards;
             opacity: 0;
-            transform: translateY(50px) rotateY(90deg);
+            transform: translateY(20px) rotateY(90deg);
         }
 
         @keyframes dealCard {
-            0% { opacity: 0; transform: translateY(50px) rotateY(90deg); }
+            0% { opacity: 0; transform: translateY(20px) rotateY(90deg); }
             100% { opacity: 1; transform: translateY(0) rotateY(0deg); }
         }
 
@@ -134,23 +134,25 @@
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col items-center justify-center relative">
+<body class="h-screen w-screen flex flex-col items-center justify-center relative bg-black">
+
+    <!-- GAME OVERLAY (Moved to top level, Fixed position to block clicks) -->
+    <div id="game-overlay" class="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/95 opacity-0 hidden backdrop-blur-sm">
+        <div class="border border-pink-500 rounded-xl p-6 w-[90%] max-w-sm shadow-[0_0_50px_rgba(255,0,255,0.3)] bg-gray-900/80">
+            <h3 id="game-title" class="text-pink-400 tracking-widest uppercase text-sm mb-6 text-center">Game</h3>
+            <div id="game-content" class="flex items-center justify-center mb-6 min-h-[100px]">
+                <!-- Dynamic Content Here -->
+            </div>
+            <div id="game-result" class="text-2xl font-bold text-white vegas-font text-center min-h-[2rem]"></div>
+        </div>
+    </div>
 
     <!-- Background Animation Container -->
-    <div id="background-effects" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+    <div id="background-effects" class="absolute inset-0 w-full h-full pointer-events-none z-0"></div>
 
     <!-- Main Content -->
     <div class="z-10 text-center px-4 w-full max-w-md relative">
         
-        <!-- GAME OVERLAY (Appears over content when active) -->
-        <div id="game-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 rounded-xl opacity-0 hidden border border-pink-500 shadow-[0_0_50px_rgba(255,0,255,0.3)]">
-            <h3 id="game-title" class="text-pink-400 tracking-widest uppercase text-sm mb-4">Game</h3>
-            <div id="game-content" class="flex items-center justify-center space-x-4 mb-4">
-                <!-- Dynamic Content Here -->
-            </div>
-            <div id="game-result" class="text-2xl font-bold text-white vegas-font h-8"></div>
-        </div>
-
         <!-- Top Badge -->
         <div class="mb-6 inline-block border border-pink-500 rounded-full px-4 py-1 bg-black/50 shadow-[0_0_10px_#ff00ff] transform -rotate-2">
             <span class="script-font text-2xl text-pink-400 mr-2">Seb & Kim's</span>
@@ -214,7 +216,7 @@
         </div>
 
         <!-- Interactive Button -->
-        <button onclick="handleButtonClick()" class="px-8 py-4 rounded-full bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 text-white font-bold tracking-widest shadow-[0_0_20px_rgba(255,0,255,0.5)] border border-white/20 active:scale-95 transition-all hover:shadow-[0_0_40px_rgba(255,0,255,0.8)] z-50 relative">
+        <button id="roll-btn" onclick="handleButtonClick()" class="px-8 py-4 rounded-full bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 text-white font-bold tracking-widest shadow-[0_0_20px_rgba(255,0,255,0.5)] border border-white/20 active:scale-95 transition-all hover:shadow-[0_0_40px_rgba(255,0,255,0.8)] z-50 relative">
             🎰 ROLL THE DICE
         </button>
     </div>
@@ -239,7 +241,7 @@
         const gameResult = document.getElementById('game-result');
         const bgContainer = document.getElementById('background-effects');
 
-        // GAME STATE - Defined at the top to prevent errors
+        // GAME STATE
         let gameIndex = 0; // 0=Cards, 1=Dice, 2=Roulette
         let isGamePlaying = false;
         let quoteIndex = 0;
@@ -253,7 +255,7 @@
             "Base Camp: The Venetian 🛶🥂",
             "Kim vs. The Stratosphere Jump 🪂⏬",
             "Stag Crew: Locked & Loaded 🔫🇺🇸",
-            "Paris 🗼, NYNY 🗽, Luxor🇪🇬",
+            "Paris 🗼 NYNY 🗽  Luxor🇪🇬",
             "Bellagio Fountains & Bad Bets ⛲💸",
             "Sphere Visuals Loading... 🌝🔮"
         ];
@@ -305,10 +307,10 @@
         }
 
         function updateTicker() {
-            if (isGamePlaying) return; // Don't update if game is active
+            if (isGamePlaying) return; 
             
             tickerEl.classList.remove('fade-in-out');
-            void tickerEl.offsetWidth; // Trigger reflow
+            void tickerEl.offsetWidth; 
             
             tickerEl.innerText = quotes[quoteIndex];
             tickerEl.classList.add('fade-in-out');
@@ -320,6 +322,9 @@
         // 5. GAMBLING MINI-GAME LOGIC
         // ==========================================
         function handleButtonClick() {
+            // Safety check: Prevent clicks if game is running
+            if (isGamePlaying) return;
+
             // 1. Confetti
             for(let i=0; i<30; i++) { setTimeout(createFloater, i * 50); }
             // 2. Play Game
@@ -329,10 +334,7 @@
         function playMiniGame() {
             isGamePlaying = true;
             overlay.classList.remove('hidden');
-            // Slight delay to allow display change before opacity transition
-            setTimeout(() => {
-                 overlay.classList.remove('opacity-0');
-            }, 10);
+            setTimeout(() => { overlay.classList.remove('opacity-0'); }, 10);
            
             gameResult.innerText = "";
             
@@ -342,21 +344,22 @@
             
             gameIndex = (gameIndex + 1) % 3;
 
-            // Hide after 3.5 seconds
+            // Hide after 4 seconds (slightly longer for blackjack)
+            const delay = (gameIndex === 1) ? 4500 : 3500; 
+
             setTimeout(() => {
                 overlay.classList.add('opacity-0');
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                     isGamePlaying = false;
-                    // Force ticker update immediately so screen isn't empty
                     updateTicker();
                 }, 500);
-            }, 3500);
+            }, delay);
         }
 
-        // --- BLACKJACK ---
+        // --- BLACKJACK 2.0 (Player vs Dealer) ---
         function playBlackjack() {
-            gameTitle.innerText = "Dealing Cards...";
+            gameTitle.innerText = "VS DEALER";
             const suits = ['♠', '♥', '♦', '♣'];
             const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             
@@ -370,29 +373,69 @@
                 return { s, v, num, color };
             };
 
-            const c1 = getCard();
-            const c2 = getCard();
-            let total = c1.num + c2.num;
-            if (total > 21 && c1.v === 'A') total -= 10;
+            // Calculate Score Logic (handling Aces)
+            const calcScore = (c1, c2) => {
+                let total = c1.num + c2.num;
+                let aces = (c1.v === 'A' ? 1 : 0) + (c2.v === 'A' ? 1 : 0);
+                while (total > 21 && aces > 0) {
+                    total -= 10;
+                    aces--;
+                }
+                return total;
+            };
+
+            const p1 = getCard(); const p2 = getCard();
+            const d1 = getCard(); const d2 = getCard();
+            
+            const pScore = calcScore(p1, p2);
+            const dScore = calcScore(d1, d2);
+
+            // Render Card HTML Helper
+            const renderCard = (c, delay) => `
+                <div class="playing-card w-12 h-16 flex flex-col items-center justify-center text-sm font-bold ${c.color}" style="animation-delay: ${delay}s">
+                    <span>${c.v}</span><span class="text-lg">${c.s}</span>
+                </div>
+            `;
 
             gameContent.innerHTML = `
-                <div class="playing-card w-16 h-24 flex flex-col items-center justify-center text-xl font-bold ${c1.color}" style="animation-delay: 0.1s">
-                    <span>${c1.v}</span><span class="text-3xl">${c1.s}</span>
-                </div>
-                <div class="playing-card w-16 h-24 flex flex-col items-center justify-center text-xl font-bold ${c2.color}" style="animation-delay: 0.3s">
-                    <span>${c2.v}</span><span class="text-3xl">${c2.s}</span>
+                <div class="flex flex-col w-full space-y-4">
+                    <!-- Dealer Row -->
+                    <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                        <span class="text-xs text-gray-400 w-16 text-left">DEALER</span>
+                        <div class="flex space-x-2">
+                            ${renderCard(d1, 0.1)} ${renderCard(d2, 0.2)}
+                        </div>
+                        <span class="text-xl font-bold w-8 text-right text-gray-400">${dScore}</span>
+                    </div>
+                    <!-- Player Row -->
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-pink-500 w-16 text-left">YOU</span>
+                        <div class="flex space-x-2">
+                            ${renderCard(p1, 0.3)} ${renderCard(p2, 0.4)}
+                        </div>
+                        <span class="text-xl font-bold w-8 text-right text-pink-500">${pScore}</span>
+                    </div>
                 </div>
             `;
 
             setTimeout(() => {
-                if (total === 21) {
-                    gameResult.innerText = "BLACKJACK! 21!";
+                if (pScore > 21) {
+                     gameResult.innerText = "BUST! YOU LOSE";
+                     gameResult.classList.remove('neon-text-gold');
+                } else if (dScore > 21) {
+                     gameResult.innerText = "DEALER BUST! YOU WIN!";
+                     gameResult.classList.add('neon-text-gold');
+                } else if (pScore > dScore) {
+                    gameResult.innerText = "YOU WIN!";
                     gameResult.classList.add('neon-text-gold');
+                } else if (pScore === dScore) {
+                    gameResult.innerText = "PUSH (DRAW)";
+                    gameResult.classList.remove('neon-text-gold');
                 } else {
-                    gameResult.innerText = `Count: ${total}`;
+                    gameResult.innerText = "DEALER WINS";
                     gameResult.classList.remove('neon-text-gold');
                 }
-            }, 800);
+            }, 1000);
         }
 
         // --- CRAPS (DICE) ---
@@ -404,8 +447,10 @@
             const total = (d1 + 1) + (d2 + 1);
 
             gameContent.innerHTML = `
-                <span class="text-7xl text-white shake-dice mx-2">${diceChars[d1]}</span>
-                <span class="text-7xl text-white shake-dice mx-2">${diceChars[d2]}</span>
+                <div class="flex items-center">
+                    <span class="text-7xl text-white shake-dice mx-2">${diceChars[d1]}</span>
+                    <span class="text-7xl text-white shake-dice mx-2">${diceChars[d2]}</span>
+                </div>
             `;
 
             setTimeout(() => {
@@ -413,7 +458,7 @@
                     gameResult.innerText = "WINNER! " + total;
                     gameResult.classList.add('neon-text-gold');
                 } else if (total === 2 || total === 3 || total === 12) {
-                    gameResult.innerText = "CRAPS! " + total;
+                    gameResult.innerText = "SNAKE EYES! " + total;
                     gameResult.classList.remove('neon-text-gold');
                 } else {
                     gameResult.innerText = "Rolled a " + total;
@@ -429,7 +474,7 @@
             
             const display = document.getElementById('roulette-display');
             let count = 0;
-            const maxSpins = 20;
+            const maxSpins = 25;
             
             const spinInterval = setInterval(() => {
                 const num = Math.floor(Math.random() * 37);
@@ -447,7 +492,7 @@
                     const msg = (colorClass.includes('red')) ? "RED" : (colorClass.includes('black') ? "BLACK" : "ZERO");
                     gameResult.innerText = `${msg} ${finalNum}`;
                 }
-            }, 80);
+            }, 70);
         }
 
         // ==========================================
