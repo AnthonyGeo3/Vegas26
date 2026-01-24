@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Seb & Kim's Vegas Trip</title>
+    <!-- Tailwind CSS for layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: A mix of Neon and futuristic styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Rajdhani:wght@500;700&family=Sacramento&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Custom Animations and Neon Effects */
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --neon-gold: #ffd700;
+            --neon-purple: #bd00ff;
+        }
+
+        body {
+            background-color: #050505;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden; /* Prevent scrolling */
+        }
+
+        /* Neon Text Glow */
+        .neon-text-pink {
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--neon-pink), 0 0 30px var(--neon-pink), 0 0 40px var(--neon-pink);
+        }
+        
+        .neon-text-blue {
+            text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue), 0 0 40px var(--neon-blue);
+        }
+
+        .neon-text-gold {
+             text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-gold), 0 0 20px var(--neon-gold);
+        }
+
+        /* Neon Box Glow */
+        .neon-box {
+            box-shadow: 0 0 5px var(--neon-blue), inset 0 0 5px var(--neon-blue);
+            border: 2px solid var(--neon-blue);
+            background: rgba(0, 20, 40, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        /* The Vegas Title Font */
+        .vegas-font {
+            font-family: 'Monoton', cursive;
+            font-weight: 400;
+        }
+
+        /* Script font for the couple */
+        .script-font {
+            font-family: 'Sacramento', cursive;
+        }
+
+        /* Floating Background Elements Animation */
+        .floater {
+            position: absolute;
+            bottom: -50px;
+            animation: floatUp linear infinite;
+            opacity: 0.6;
+            z-index: -1;
+            user-select: none;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Jackpot flash animation */
+        .jackpot-flash {
+            animation: flashBorder 2s infinite;
+        }
+        @keyframes flashBorder {
+            0% { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+            50% { border-color: var(--neon-gold); box-shadow: 0 0 20px var(--neon-gold); }
+            100% { border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+        }
+
+        /* Ticker Fade Animation */
+        .fade-in-out {
+            animation: fadeText 4s infinite;
+        }
+
+        @keyframes fadeText {
+            0% { opacity: 0; transform: translateY(10px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col items-center justify-center relative">
+
+    <!-- Background Animation Container -->
+    <div id="background-effects" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+
+    <!-- Main Content -->
+    <div class="z-10 text-center px-4 w-full max-w-md">
+        
+        <!-- Top Badge -->
+        <div class="mb-6 inline-block border border-pink-500 rounded-full px-4 py-1 bg-black/50 shadow-[0_0_10px_#ff00ff] transform -rotate-2">
+            <span class="script-font text-2xl text-pink-400 mr-2">Seb & Kim's</span>
+            <span class="text-xs uppercase tracking-widest text-white">Wedding Edition 💍</span>
+        </div>
+
+        <!-- Header -->
+        <div class="mb-6">
+            <h2 class="text-sm text-cyan-300 tracking-[0.4em] uppercase mb-1">Inbound To</h2>
+            <h1 class="text-6xl md:text-7xl vegas-font neon-text-pink text-transparent bg-clip-text bg-white">VEGAS</h1>
+            <!-- Flight Line -->
+            <div class="flex items-center justify-center space-x-2 mt-2 opacity-80">
+                <span class="text-xs text-gray-400">LHR</span>
+                <div class="h-px w-12 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                <span class="text-xl">✈️</span>
+                <div class="h-px w-12 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                <span class="text-xs text-gray-400">LAS</span>
+            </div>
+        </div>
+
+        <!-- Countdown Timer Grid -->
+        <div class="grid grid-cols-4 gap-2 mb-8">
+            <!-- Days -->
+            <div class="flex flex-col items-center">
+                <div class="neon-box jackpot-flash rounded-lg w-full aspect-square flex items-center justify-center mb-2">
+                    <span id="days" class="text-3xl md:text-5xl font-bold text-white">00</span>
+                </div>
+                <span class="text-xs text-cyan-300 uppercase tracking-widest">Days</span>
+            </div>
+
+            <!-- Hours -->
+            <div class="flex flex-col items-center">
+                <div class="neon-box rounded-lg w-full aspect-square flex items-center justify-center mb-2">
+                    <span id="hours" class="text-3xl md:text-5xl font-bold text-white">00</span>
+                </div>
+                <span class="text-xs text-cyan-300 uppercase tracking-widest">Hrs</span>
+            </div>
+
+            <!-- Minutes -->
+            <div class="flex flex-col items-center">
+                <div class="neon-box rounded-lg w-full aspect-square flex items-center justify-center mb-2">
+                    <span id="minutes" class="text-3xl md:text-5xl font-bold text-white">00</span>
+                </div>
+                <span class="text-xs text-cyan-300 uppercase tracking-widest">Mins</span>
+            </div>
+
+            <!-- Seconds -->
+            <div class="flex flex-col items-center">
+                <div class="neon-box rounded-lg w-full aspect-square flex items-center justify-center mb-2 border-pink-500 shadow-[0_0_5px_#ff00ff]">
+                    <span id="seconds" class="text-3xl md:text-5xl font-bold text-pink-500">00</span>
+                </div>
+                <span class="text-xs text-pink-500 uppercase tracking-widest">Secs</span>
+            </div>
+        </div>
+
+        <!-- Rotating Itinerary Quotes -->
+        <div class="h-16 flex items-center justify-center mb-6 px-2">
+            <p id="ticker" class="text-lg md:text-xl font-bold neon-text-gold uppercase italic text-yellow-300 leading-tight">
+                <!-- Text injected by JS -->
+            </p>
+        </div>
+
+        <!-- Interactive Button -->
+        <button onclick="triggerConfetti()" class="px-8 py-4 rounded-full bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 text-white font-bold tracking-widest shadow-[0_0_20px_rgba(255,0,255,0.5)] border border-white/20 active:scale-95 transition-all hover:shadow-[0_0_40px_rgba(255,0,255,0.8)]">
+            🎰 ROLL THE DICE
+        </button>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION: DATE
+        // ==========================================
+        const flightTargetDate = "2026-04-17T17:10:00"; 
+        // ==========================================
+
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        
+        // ==========================================
+        // COUNTDOWN LOGIC
+        // ==========================================
+        function updateCountdown() {
+            const now = new Date();
+            const target = new Date(flightTargetDate).getTime();
+            const current = now.getTime();
+            const difference = target - current;
+
+            if (difference <= 0) {
+                daysEl.innerText = "00";
+                hoursEl.innerText = "00";
+                minutesEl.innerText = "00";
+                secondsEl.innerText = "00";
+                document.getElementById('ticker').innerText = "WE ARE LIVE IN VEGAS BABY! 🇺🇸";
+                return;
+            }
+
+            const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+            daysEl.innerText = d < 10 ? '0' + d : d;
+            hoursEl.innerText = h < 10 ? '0' + h : h;
+            minutesEl.innerText = m < 10 ? '0' + m : m;
+            secondsEl.innerText = s < 10 ? '0' + s : s;
+        }
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // ==========================================
+        // BACKGROUND ANIMATION (Custom Wedding/Vegas Icons)
+        // ==========================================
+        const bgContainer = document.getElementById('background-effects');
+        // Added: Rings, Steak, Microphone (Elvis), Fountain, Gondola, Gun (Stag), Cards
+        const icons = ['💍', '🥩', '🎤', '⛲', '🛶', '🔫', '🎢', '🎲', '🎰', '♠️', '♥️'];
+
+        function createFloater() {
+            const el = document.createElement('div');
+            el.classList.add('floater');
+            el.innerText = icons[Math.floor(Math.random() * icons.length)];
+            
+            const left = Math.random() * 100;
+            const size = Math.random() * 20 + 20; 
+            const duration = Math.random() * 5 + 5; 
+            
+            el.style.left = `${left}vw`;
+            el.style.fontSize = `${size}px`;
+            el.style.animationDuration = `${duration}s`;
+            
+            bgContainer.appendChild(el);
+
+            setTimeout(() => { el.remove(); }, duration * 1000);
+        }
+        setInterval(createFloater, 700);
+
+        // ==========================================
+        // ROTATING TICKER (The Itinerary)
+        // ==========================================
+        const tickerEl = document.getElementById('ticker');
+        const quotes = [
+            "Seb & Kim getting hitched by The King 🕺🎤",
+            "Mission: Gordon's Beef Wellington 🥩🔥",
+            "Base Camp: The Venetian 🛶🥂",
+            "Kim vs. The Stratosphere Jump 🎢😱",
+            "Stag Crew: Locked & Loaded at the Range 🔫",
+            "Bellagio Fountains & Bad Decisions ⛲💸",
+            "Whatever happens in Vegas... 🤫"
+        ];
+        
+        let quoteIndex = 0;
+
+        function updateTicker() {
+            // Remove animation class to reset
+            tickerEl.classList.remove('fade-in-out');
+            
+            // Trigger reflow to restart animation
+            void tickerEl.offsetWidth; 
+            
+            tickerEl.innerText = quotes[quoteIndex];
+            tickerEl.classList.add('fade-in-out');
+            
+            quoteIndex = (quoteIndex + 1) % quotes.length;
+        }
+
+        // Change quote every 4 seconds
+        setInterval(updateTicker, 4000);
+        updateTicker(); // Initial call
+
+        // ==========================================
+        // INTERACTIVE BUTTON
+        // ==========================================
+        function triggerConfetti() {
+            for(let i=0; i<30; i++) {
+                setTimeout(createFloater, i * 50);
+            }
+            // Temporarily override ticker
+            const oldText = tickerEl.innerText;
+            tickerEl.classList.remove('fade-in-out');
+            tickerEl.innerText = "🎲 VEGAS BABY! 🎲";
+            tickerEl.classList.add('neon-text-pink');
+            
+            setTimeout(() => {
+                tickerEl.classList.remove('neon-text-pink');
+                // The interval will pick up the next quote automatically
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+
+
