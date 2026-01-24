@@ -16,6 +16,7 @@
             --neon-blue: #00ffff;
             --neon-gold: #ffd700;
             --neon-purple: #bd00ff;
+            --card-white: #f0f0f0;
         }
 
         body {
@@ -34,7 +35,6 @@
             text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue), 0 0 40px var(--neon-blue);
         }
 
-        /* UPDATED: Cleaner Gold Text (Less blur, higher readability) */
         .neon-text-gold {
              color: #ffeb3b;
              text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.5);
@@ -97,6 +97,49 @@
             90% { opacity: 1; transform: translateY(0); }
             100% { opacity: 0; transform: translateY(-10px); }
         }
+
+        /* --- GAMBLING ANIMATIONS --- */
+        
+        /* Game Overlay */
+        #game-overlay {
+            pointer-events: none; /* Let clicks pass through if needed, but mainly for display */
+            transition: opacity 0.5s ease;
+        }
+
+        /* Card Flip Animation */
+        .playing-card {
+            background: white;
+            border-radius: 8px;
+            color: black;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
+            animation: dealCard 0.5s ease-out forwards;
+            opacity: 0;
+            transform: translateY(50px) rotateY(90deg);
+        }
+
+        @keyframes dealCard {
+            0% { opacity: 0; transform: translateY(50px) rotateY(90deg); }
+            100% { opacity: 1; transform: translateY(0) rotateY(0deg); }
+        }
+
+        /* Dice Shake Animation */
+        .shake-dice {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(5deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        /* Roulette Spin Blur */
+        .roulette-spin {
+            animation: spinText 0.1s linear infinite;
+        }
+        
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col items-center justify-center relative">
@@ -105,8 +148,17 @@
     <div id="background-effects" class="absolute inset-0 w-full h-full pointer-events-none"></div>
 
     <!-- Main Content -->
-    <div class="z-10 text-center px-4 w-full max-w-md">
+    <div class="z-10 text-center px-4 w-full max-w-md relative">
         
+        <!-- GAME OVERLAY (Appears over content when active) -->
+        <div id="game-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 rounded-xl opacity-0 hidden border border-pink-500 shadow-[0_0_50px_rgba(255,0,255,0.3)]">
+            <h3 id="game-title" class="text-pink-400 tracking-widest uppercase text-sm mb-4">Game</h3>
+            <div id="game-content" class="flex items-center justify-center space-x-4 mb-4">
+                <!-- Dynamic Content Here -->
+            </div>
+            <div id="game-result" class="text-2xl font-bold text-white vegas-font h-8"></div>
+        </div>
+
         <!-- Top Badge -->
         <div class="mb-6 inline-block border border-pink-500 rounded-full px-4 py-1 bg-black/50 shadow-[0_0_10px_#ff00ff] transform -rotate-2">
             <span class="script-font text-2xl text-pink-400 mr-2">Seb & Kim's</span>
@@ -170,7 +222,7 @@
         </div>
 
         <!-- Interactive Button -->
-        <button onclick="triggerConfetti()" class="px-8 py-4 rounded-full bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 text-white font-bold tracking-widest shadow-[0_0_20px_rgba(255,0,255,0.5)] border border-white/20 active:scale-95 transition-all hover:shadow-[0_0_40px_rgba(255,0,255,0.8)]">
+        <button onclick="handleButtonClick()" class="px-8 py-4 rounded-full bg-gradient-to-r from-purple-700 via-pink-600 to-red-600 text-white font-bold tracking-widest shadow-[0_0_20px_rgba(255,0,255,0.5)] border border-white/20 active:scale-95 transition-all hover:shadow-[0_0_40px_rgba(255,0,255,0.8)] z-50 relative">
             🎰 ROLL THE DICE
         </button>
     </div>
@@ -219,38 +271,22 @@
         updateCountdown();
 
         // ==========================================
-        // BACKGROUND ANIMATION (UPDATED ICONS)
+        // BACKGROUND ANIMATION
         // ==========================================
         const bgContainer = document.getElementById('background-effects');
-        
-        // ICONS LIST:
-        // 🗼 - Paris
-        // 🗽 - NYNY
-        // 🍽️ - Wellington/Dining
-        // 🎤 - Elvis
-        // ⛲ - Bellagio
-        // 🔫 - Range/Stag
-        // 🪂 - Stratosphere/SkyJump
-        // 🌝 - The Sphere Face
-        // 💍 - Wedding
-        // 🎰 - Slot
         const icons = ['🗼', '🗽', '🍽️', '🎤', '⛲', '🔫', '🪂', '🌝', '💍', '🎰', '♣️', '♦️'];
 
         function createFloater() {
             const el = document.createElement('div');
             el.classList.add('floater');
             el.innerText = icons[Math.floor(Math.random() * icons.length)];
-            
             const left = Math.random() * 100;
             const size = Math.random() * 20 + 20; 
             const duration = Math.random() * 5 + 5; 
-            
             el.style.left = `${left}vw`;
             el.style.fontSize = `${size}px`;
             el.style.animationDuration = `${duration}s`;
-            
             bgContainer.appendChild(el);
-
             setTimeout(() => { el.remove(); }, duration * 1000);
         }
         setInterval(createFloater, 700);
@@ -265,46 +301,164 @@
             "Base Camp: The Venetian 🛶🥂",
             "Kim vs. The Stratosphere Jump 🪂⏬",
             "Stag Crew: Locked & Loaded 🔫🇺🇸",
-            "Paris 🗼, NYNY 🗽 vs Luxor 🇪🇬",
+            "Paris 🗼 vs NYNY 🗽 vs Luxor",
             "Bellagio Fountains & Bad Bets ⛲💸",
             "Sphere Visuals Loading... 🌝🔮"
         ];
-        
         let quoteIndex = 0;
 
         function updateTicker() {
-            // Remove animation class to reset
+            if (isGamePlaying) return; // Don't update if game is active
             tickerEl.classList.remove('fade-in-out');
-            
-            // Trigger reflow to restart animation
             void tickerEl.offsetWidth; 
-            
             tickerEl.innerText = quotes[quoteIndex];
             tickerEl.classList.add('fade-in-out');
-            
             quoteIndex = (quoteIndex + 1) % quotes.length;
         }
-
-        // Change quote every 4 seconds
         setInterval(updateTicker, 4000);
-        updateTicker(); // Initial call
+        updateTicker();
 
         // ==========================================
-        // INTERACTIVE BUTTON
+        // GAMBLING MINI-GAME LOGIC
         // ==========================================
-        function triggerConfetti() {
-            for(let i=0; i<30; i++) {
-                setTimeout(createFloater, i * 50);
-            }
-            const oldText = tickerEl.innerText;
-            tickerEl.classList.remove('fade-in-out');
-            tickerEl.innerText = "🎲 VEGAS BABY! 🎲";
-            tickerEl.classList.add('neon-text-pink');
+        let gameIndex = 0; // 0=Cards, 1=Dice, 2=Roulette
+        let isGamePlaying = false;
+        const overlay = document.getElementById('game-overlay');
+        const gameTitle = document.getElementById('game-title');
+        const gameContent = document.getElementById('game-content');
+        const gameResult = document.getElementById('game-result');
+
+        function handleButtonClick() {
+            // 1. Always trigger confetti
+            for(let i=0; i<30; i++) { setTimeout(createFloater, i * 50); }
             
-            setTimeout(() => {
-                tickerEl.classList.remove('neon-text-pink');
-            }, 3000);
+            // 2. Trigger mini game
+            playMiniGame();
         }
+
+        function playMiniGame() {
+            // Show overlay
+            isGamePlaying = true;
+            overlay.classList.remove('hidden');
+            overlay.classList.remove('opacity-0');
+            gameResult.innerText = "";
+            
+            // Cycle games
+            if (gameIndex === 0) playBlackjack();
+            else if (gameIndex === 1) playCraps();
+            else if (gameIndex === 2) playRoulette();
+            
+            gameIndex = (gameIndex + 1) % 3;
+
+            // Hide after 3 seconds
+            setTimeout(() => {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    isGamePlaying = false;
+                }, 500);
+            }, 3500);
+        }
+
+        // --- BLACKJACK ---
+        function playBlackjack() {
+            gameTitle.innerText = "Dealing Cards...";
+            const suits = ['♠', '♥', '♦', '♣'];
+            const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            
+            // Helper to get random card
+            const getCard = () => {
+                const s = suits[Math.floor(Math.random() * suits.length)];
+                const v = values[Math.floor(Math.random() * values.length)];
+                let num = parseInt(v);
+                if (v === 'J' || v === 'Q' || v === 'K') num = 10;
+                if (v === 'A') num = 11;
+                const color = (s === '♥' || s === '♦') ? 'text-red-600' : 'text-black';
+                return { s, v, num, color };
+            };
+
+            const c1 = getCard();
+            const c2 = getCard();
+            let total = c1.num + c2.num;
+            if (total > 21 && c1.v === 'A') total -= 10; // Handle aces loosely for visual
+
+            gameContent.innerHTML = `
+                <div class="playing-card w-16 h-24 flex flex-col items-center justify-center text-xl font-bold ${c1.color}" style="animation-delay: 0.1s">
+                    <span>${c1.v}</span><span class="text-3xl">${c1.s}</span>
+                </div>
+                <div class="playing-card w-16 h-24 flex flex-col items-center justify-center text-xl font-bold ${c2.color}" style="animation-delay: 0.3s">
+                    <span>${c2.v}</span><span class="text-3xl">${c2.s}</span>
+                </div>
+            `;
+
+            setTimeout(() => {
+                if (total === 21) {
+                    gameResult.innerText = "BLACKJACK! 21!";
+                    gameResult.classList.add('neon-text-gold');
+                } else {
+                    gameResult.innerText = `Count: ${total}`;
+                    gameResult.classList.remove('neon-text-gold');
+                }
+            }, 800);
+        }
+
+        // --- CRAPS (DICE) ---
+        function playCraps() {
+            gameTitle.innerText = "Rolling Dice...";
+            const diceChars = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            const d1 = Math.floor(Math.random() * 6);
+            const d2 = Math.floor(Math.random() * 6);
+            const total = (d1 + 1) + (d2 + 1);
+
+            gameContent.innerHTML = `
+                <span class="text-7xl text-white shake-dice mx-2">${diceChars[d1]}</span>
+                <span class="text-7xl text-white shake-dice mx-2">${diceChars[d2]}</span>
+            `;
+
+            setTimeout(() => {
+                if (total === 7 || total === 11) {
+                    gameResult.innerText = "WINNER! " + total;
+                    gameResult.classList.add('neon-text-gold');
+                } else if (total === 2 || total === 3 || total === 12) {
+                    gameResult.innerText = "CRAPS! " + total;
+                    gameResult.classList.remove('neon-text-gold');
+                } else {
+                    gameResult.innerText = "Rolled a " + total;
+                    gameResult.classList.remove('neon-text-gold');
+                }
+            }, 600);
+        }
+
+        // --- ROULETTE ---
+        function playRoulette() {
+            gameTitle.innerText = "Spinning Wheel...";
+            gameContent.innerHTML = `<div id="roulette-display" class="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-3xl font-bold bg-green-700 text-white">00</div>`;
+            
+            const display = document.getElementById('roulette-display');
+            let count = 0;
+            const maxSpins = 20;
+            
+            const spinInterval = setInterval(() => {
+                const num = Math.floor(Math.random() * 37);
+                // Simple color logic
+                let colorClass = 'bg-red-600';
+                if (num === 0) colorClass = 'bg-green-600';
+                else if (num % 2 === 0) colorClass = 'bg-black';
+                
+                display.className = `w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-3xl font-bold text-white ${colorClass}`;
+                display.innerText = num;
+                
+                count++;
+                if (count >= maxSpins) {
+                    clearInterval(spinInterval);
+                    // Final Result Logic
+                    const finalNum = parseInt(display.innerText);
+                    const msg = (colorClass.includes('red')) ? "RED" : (colorClass.includes('black') ? "BLACK" : "ZERO");
+                    gameResult.innerText = `${msg} ${finalNum}`;
+                }
+            }, 80);
+        }
+
     </script>
 </body>
 </html>
