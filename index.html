@@ -6,7 +6,7 @@
     <title>Seb & Kim's Vegas Trip</title>
     <!-- Tailwind CSS for layout -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: A mix of Neon and futuristic styles -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Rajdhani:wght@500;700&family=Sacramento&display=swap" rel="stylesheet">
     
     <style>
@@ -34,8 +34,10 @@
             text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue), 0 0 40px var(--neon-blue);
         }
 
+        /* UPDATED: Cleaner Gold Text (Less blur, higher readability) */
         .neon-text-gold {
-             text-shadow: 0 0 5px #fff, 0 0 10px var(--neon-gold), 0 0 20px var(--neon-gold);
+             color: #ffeb3b;
+             text-shadow: 0 0 10px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 215, 0, 0.5);
         }
 
         /* Neon Box Glow */
@@ -108,7 +110,7 @@
         <!-- Top Badge -->
         <div class="mb-6 inline-block border border-pink-500 rounded-full px-4 py-1 bg-black/50 shadow-[0_0_10px_#ff00ff] transform -rotate-2">
             <span class="script-font text-2xl text-pink-400 mr-2">Seb & Kim's</span>
-            <span class="text-xs uppercase tracking-widest text-white">Wedding Edition 💍</span>
+            <span class="text-xs uppercase tracking-widest text-white">Wedding 💍</span>
         </div>
 
         <!-- Header -->
@@ -162,7 +164,7 @@
 
         <!-- Rotating Itinerary Quotes -->
         <div class="h-16 flex items-center justify-center mb-6 px-2">
-            <p id="ticker" class="text-lg md:text-xl font-bold neon-text-gold uppercase italic text-yellow-300 leading-tight">
+            <p id="ticker" class="text-lg md:text-xl font-bold neon-text-gold uppercase italic leading-tight">
                 <!-- Text injected by JS -->
             </p>
         </div>
@@ -217,11 +219,22 @@
         updateCountdown();
 
         // ==========================================
-        // BACKGROUND ANIMATION (Custom Wedding/Vegas Icons)
+        // BACKGROUND ANIMATION (UPDATED ICONS)
         // ==========================================
         const bgContainer = document.getElementById('background-effects');
-        // Added: Rings, Steak, Microphone (Elvis), Fountain, Gondola, Gun (Stag), Cards
-        const icons = ['💍', '🥩', '🎤', '⛲', '🛶', '🔫', '🎢', '🎲', '🎰', '♠️', '♥️'];
+        
+        // ICONS LIST:
+        // 🗼 - Paris
+        // 🗽 - NYNY
+        // 🍽️ - Wellington/Dining
+        // 🎤 - Elvis
+        // ⛲ - Bellagio
+        // 🔫 - Range/Stag
+        // 🪂 - Stratosphere/SkyJump
+        // 🌝 - The Sphere Face
+        // 💍 - Wedding
+        // 🎰 - Slot
+        const icons = ['🗼', '🗽', '🍽️', '🎤', '⛲', '🔫', '🪂', '🌝', '💍', '🎰', '♣️', '♦️'];
 
         function createFloater() {
             const el = document.createElement('div');
@@ -243,17 +256,18 @@
         setInterval(createFloater, 700);
 
         // ==========================================
-        // ROTATING TICKER (The Itinerary)
+        // ROTATING TICKER
         // ==========================================
         const tickerEl = document.getElementById('ticker');
         const quotes = [
-            "Seb & Kim getting hitched by The King 🕺🎤",
-            "Mission: Gordon's Beef Wellington 🥩🔥",
+            "Seb & Kim's Chapel Appointment 💍🎤",
+            "Mission: Gordon's Beef Wellington 🍽️👨‍🍳",
             "Base Camp: The Venetian 🛶🥂",
-            "Kim vs. The Stratosphere Jump 🎢😱",
-            "Stag Crew: Locked & Loaded at the Range 🔫",
-            "Bellagio Fountains & Bad Decisions ⛲💸",
-            "Whatever happens in Vegas... 🤫"
+            "Kim vs. The Stratosphere Jump 🪂⏬",
+            "Stag Crew: Locked & Loaded 🔫🇺🇸",
+            "Paris 🗼, NYNY 🗽 vs Luxor 🇪🇬",
+            "Bellagio Fountains & Bad Bets ⛲💸",
+            "Sphere Visuals Loading... 🌝🔮"
         ];
         
         let quoteIndex = 0;
@@ -282,7 +296,6 @@
             for(let i=0; i<30; i++) {
                 setTimeout(createFloater, i * 50);
             }
-            // Temporarily override ticker
             const oldText = tickerEl.innerText;
             tickerEl.classList.remove('fade-in-out');
             tickerEl.innerText = "🎲 VEGAS BABY! 🎲";
@@ -290,7 +303,6 @@
             
             setTimeout(() => {
                 tickerEl.classList.remove('neon-text-pink');
-                // The interval will pick up the next quote automatically
             }, 3000);
         }
     </script>
