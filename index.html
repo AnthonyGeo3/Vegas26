@@ -457,11 +457,17 @@
                 if (total === 7 || total === 11) {
                     gameResult.innerText = "WINNER! " + total;
                     gameResult.classList.add('neon-text-gold');
-                } else if (total === 2 || total === 3 || total === 12) {
+                } else if (total === 2) {
                     gameResult.innerText = "SNAKE EYES! " + total;
                     gameResult.classList.remove('neon-text-gold');
+                } else if (total === 12) {
+                    gameResult.innerText = "BOXCARS! " + total;
+                    gameResult.classList.remove('neon-text-gold');
+                } else if (total === 3) {
+                    gameResult.innerText = "CRAPS! " + total;
+                    gameResult.classList.remove('neon-text-gold');
                 } else {
-                    gameResult.innerText = "Rolled a " + total;
+                    gameResult.innerText = "POINT IS " + total;
                     gameResult.classList.remove('neon-text-gold');
                 }
             }, 600);
