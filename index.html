@@ -16,7 +16,6 @@
             --neon-blue: #00ffff;
             --neon-gold: #ffd700;
             --neon-purple: #bd00ff;
-            --card-white: #f0f0f0;
         }
 
         body {
@@ -102,7 +101,6 @@
         
         /* Game Overlay */
         #game-overlay {
-            pointer-events: none; /* Let clicks pass through if needed, but mainly for display */
             transition: opacity 0.5s ease;
         }
 
@@ -134,12 +132,6 @@
             75% { transform: rotate(5deg); }
             100% { transform: rotate(0deg); }
         }
-
-        /* Roulette Spin Blur */
-        .roulette-spin {
-            animation: spinText 0.1s linear infinite;
-        }
-        
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col items-center justify-center relative">
@@ -151,7 +143,7 @@
     <div class="z-10 text-center px-4 w-full max-w-md relative">
         
         <!-- GAME OVERLAY (Appears over content when active) -->
-        <div id="game-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 rounded-xl opacity-0 hidden border border-pink-500 shadow-[0_0_50px_rgba(255,0,255,0.3)]">
+        <div id="game-overlay" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 rounded-xl opacity-0 hidden border border-pink-500 shadow-[0_0_50px_rgba(255,0,255,0.3)]">
             <h3 id="game-title" class="text-pink-400 tracking-widest uppercase text-sm mb-4">Game</h3>
             <div id="game-content" class="flex items-center justify-center space-x-4 mb-4">
                 <!-- Dynamic Content Here -->
@@ -229,18 +221,45 @@
 
     <script>
         // ==========================================
-        // CONFIGURATION: DATE
+        // 1. CONFIGURATION
         // ==========================================
         const flightTargetDate = "2026-04-17T17:10:00"; 
+        
         // ==========================================
-
+        // 2. DOM ELEMENTS & STATE VARIABLES
+        // ==========================================
         const daysEl = document.getElementById('days');
         const hoursEl = document.getElementById('hours');
         const minutesEl = document.getElementById('minutes');
         const secondsEl = document.getElementById('seconds');
-        
+        const tickerEl = document.getElementById('ticker');
+        const overlay = document.getElementById('game-overlay');
+        const gameTitle = document.getElementById('game-title');
+        const gameContent = document.getElementById('game-content');
+        const gameResult = document.getElementById('game-result');
+        const bgContainer = document.getElementById('background-effects');
+
+        // GAME STATE - Defined at the top to prevent errors
+        let gameIndex = 0; // 0=Cards, 1=Dice, 2=Roulette
+        let isGamePlaying = false;
+        let quoteIndex = 0;
+
+        // ICONS LIST
+        const icons = ['🗼', '🗽', '🍽️', '🎤', '⛲', '🔫', '🪂', '🌝', '💍', '🎰', '♣️', '♦️','🕺'];
+
+        const quotes = [
+            "Seb & Kim's Chapel Appointment 💍🕺",
+            "Mission: Gordon's Beef Wellington 🍽️👨‍🍳",
+            "Base Camp: The Venetian 🛶🥂",
+            "Kim vs. The Stratosphere Jump 🪂⏬",
+            "Stag Crew: Locked & Loaded 🔫🇺🇸",
+            "Paris 🗼, NYNY 🗽, Luxor🇪🇬",
+            "Bellagio Fountains & Bad Bets ⛲💸",
+            "Sphere Visuals Loading... 🌝🔮"
+        ];
+
         // ==========================================
-        // COUNTDOWN LOGIC
+        // 3. COUNTDOWN LOGIC
         // ==========================================
         function updateCountdown() {
             const now = new Date();
@@ -253,7 +272,7 @@
                 hoursEl.innerText = "00";
                 minutesEl.innerText = "00";
                 secondsEl.innerText = "00";
-                document.getElementById('ticker').innerText = "WE ARE LIVE IN VEGAS BABY! 🇺🇸";
+                if(tickerEl) tickerEl.innerText = "WE ARE LIVE IN VEGAS BABY! 🇺🇸";
                 return;
             }
 
@@ -267,15 +286,10 @@
             minutesEl.innerText = m < 10 ? '0' + m : m;
             secondsEl.innerText = s < 10 ? '0' + s : s;
         }
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
 
         // ==========================================
-        // BACKGROUND ANIMATION
+        // 4. ANIMATION & TICKER LOGIC
         // ==========================================
-        const bgContainer = document.getElementById('background-effects');
-        const icons = ['🗼', '🗽', '🍽️', '🎤', '⛲', '🔫', '🪂', '🌝', '💍', '🎰', '♣️', '♦️'];
-
         function createFloater() {
             const el = document.createElement('div');
             el.classList.add('floater');
@@ -289,73 +303,53 @@
             bgContainer.appendChild(el);
             setTimeout(() => { el.remove(); }, duration * 1000);
         }
-        setInterval(createFloater, 700);
-
-        // ==========================================
-        // ROTATING TICKER
-        // ==========================================
-        const tickerEl = document.getElementById('ticker');
-        const quotes = [
-            "Seb & Kim's Chapel Appointment 💍🎤",
-            "Mission: Gordon's Beef Wellington 🍽️👨‍🍳",
-            "Base Camp: The Venetian 🛶🥂",
-            "Kim vs. The Stratosphere Jump 🪂⏬",
-            "Stag Crew: Locked & Loaded 🔫🇺🇸",
-            "Paris 🗼 vs NYNY 🗽 vs Luxor",
-            "Bellagio Fountains & Bad Bets ⛲💸",
-            "Sphere Visuals Loading... 🌝🔮"
-        ];
-        let quoteIndex = 0;
 
         function updateTicker() {
             if (isGamePlaying) return; // Don't update if game is active
+            
             tickerEl.classList.remove('fade-in-out');
-            void tickerEl.offsetWidth; 
+            void tickerEl.offsetWidth; // Trigger reflow
+            
             tickerEl.innerText = quotes[quoteIndex];
             tickerEl.classList.add('fade-in-out');
+            
             quoteIndex = (quoteIndex + 1) % quotes.length;
         }
-        setInterval(updateTicker, 4000);
-        updateTicker();
 
         // ==========================================
-        // GAMBLING MINI-GAME LOGIC
+        // 5. GAMBLING MINI-GAME LOGIC
         // ==========================================
-        let gameIndex = 0; // 0=Cards, 1=Dice, 2=Roulette
-        let isGamePlaying = false;
-        const overlay = document.getElementById('game-overlay');
-        const gameTitle = document.getElementById('game-title');
-        const gameContent = document.getElementById('game-content');
-        const gameResult = document.getElementById('game-result');
-
         function handleButtonClick() {
-            // 1. Always trigger confetti
+            // 1. Confetti
             for(let i=0; i<30; i++) { setTimeout(createFloater, i * 50); }
-            
-            // 2. Trigger mini game
+            // 2. Play Game
             playMiniGame();
         }
 
         function playMiniGame() {
-            // Show overlay
             isGamePlaying = true;
             overlay.classList.remove('hidden');
-            overlay.classList.remove('opacity-0');
+            // Slight delay to allow display change before opacity transition
+            setTimeout(() => {
+                 overlay.classList.remove('opacity-0');
+            }, 10);
+           
             gameResult.innerText = "";
             
-            // Cycle games
             if (gameIndex === 0) playBlackjack();
             else if (gameIndex === 1) playCraps();
             else if (gameIndex === 2) playRoulette();
             
             gameIndex = (gameIndex + 1) % 3;
 
-            // Hide after 3 seconds
+            // Hide after 3.5 seconds
             setTimeout(() => {
                 overlay.classList.add('opacity-0');
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                     isGamePlaying = false;
+                    // Force ticker update immediately so screen isn't empty
+                    updateTicker();
                 }, 500);
             }, 3500);
         }
@@ -366,7 +360,6 @@
             const suits = ['♠', '♥', '♦', '♣'];
             const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
             
-            // Helper to get random card
             const getCard = () => {
                 const s = suits[Math.floor(Math.random() * suits.length)];
                 const v = values[Math.floor(Math.random() * values.length)];
@@ -380,7 +373,7 @@
             const c1 = getCard();
             const c2 = getCard();
             let total = c1.num + c2.num;
-            if (total > 21 && c1.v === 'A') total -= 10; // Handle aces loosely for visual
+            if (total > 21 && c1.v === 'A') total -= 10;
 
             gameContent.innerHTML = `
                 <div class="playing-card w-16 h-24 flex flex-col items-center justify-center text-xl font-bold ${c1.color}" style="animation-delay: 0.1s">
@@ -440,7 +433,6 @@
             
             const spinInterval = setInterval(() => {
                 const num = Math.floor(Math.random() * 37);
-                // Simple color logic
                 let colorClass = 'bg-red-600';
                 if (num === 0) colorClass = 'bg-green-600';
                 else if (num % 2 === 0) colorClass = 'bg-black';
@@ -451,13 +443,23 @@
                 count++;
                 if (count >= maxSpins) {
                     clearInterval(spinInterval);
-                    // Final Result Logic
                     const finalNum = parseInt(display.innerText);
                     const msg = (colorClass.includes('red')) ? "RED" : (colorClass.includes('black') ? "BLACK" : "ZERO");
                     gameResult.innerText = `${msg} ${finalNum}`;
                 }
             }, 80);
         }
+
+        // ==========================================
+        // 6. INITIALIZATION
+        // ==========================================
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        setInterval(createFloater, 700);
+        
+        setInterval(updateTicker, 4000);
+        updateTicker();
 
     </script>
 </body>
